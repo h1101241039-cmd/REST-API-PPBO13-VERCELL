@@ -11,38 +11,52 @@ class Database
     public $conn;
 
     public function __construct() {
-        $this->type = getenv('DB_TYPE') ?: 'mysql'; // vercel pakai pgsql
-        $this->host = getenv('DB_HOST') ?: 'localhost';
-        $this->port = getenv('DB_PORT') ?: '3306';
-        $this->db_name = getenv('DB_NAME') ?: 'kampus_db';
+        // Default MySQL (karena Railway pakai MySQL)
+        $this->type     = getenv('DB_TYPE') ?: 'mysql';
+        $this->host     = getenv('DB_HOST') ?: 'localhost';
+        $this->port     = getenv('DB_PORT') ?: '3306';
+        $this->db_name  = getenv('DB_NAME') ?: 'kampus_db';
         $this->username = getenv('DB_USER') ?: 'root';
-        $this->password = getenv('DB_PASS') ?: '';
-        $this->sslmode = getenv('DB_SSLMODE') ?: ''; // vercel pakai require
+        $this->password = getenv('DB_PASS') ?: 'mamakdoe-00';
+
+        // Railway TIDAK pakai SSLMODE (hapus agar tidak error di MySQL)
+        $this->sslmode  = ($this->type === 'pgsql') ? (getenv('DB_SSLMODE') ?: 'require') : '';
     }
 
     public function connect()
     {
         $this->conn = null;
+
         try {
-            $this->conn = new PDO(
-                "{$this->type}:host={$this->host};port={$this->port};dbname={$this->db_name};sslmode={$this->sslmode}",
-                $this->username,
-                $this->password
-            );
+
+            // Buat DSN tanpa sslmode untuk MySQL (karena membuat koneksi gagal)
+            if ($this->type === 'mysql') {
+                $dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->db_name}";
+            } 
+            // Untuk PostgreSQL (jika suatu saat dipakai)
+            else {
+                $dsn = "pgsql:host={$this->host};port={$this->port};dbname={$this->db_name};sslmode={$this->sslmode}";
+            }
+
+            $this->conn = new PDO($dsn, $this->username, $this->password);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
         } catch (PDOException $e) {
-            // Jika database belum ada, buat dulu
-            if (strpos($e->getMessage(), 'Unknown database') !== false) {
-                $tempConn = new PDO("mysql:host={$this->host}", $this->username, $this->password);
+
+            // Jika database belum dibuat → buat otomatis (lokal saja)
+            if (strpos($e->getMessage(), 'Unknown database') !== false && $this->type === 'mysql') {
+
+                $tempConn = new PDO("mysql:host={$this->host};port={$this->port}", $this->username, $this->password);
                 $tempConn->exec("CREATE DATABASE IF NOT EXISTS {$this->db_name}");
                 $tempConn = null;
 
-                // Reconnect ke database yang baru dibuat
+                // Reconnect
                 $this->conn = new PDO(
-                    "mysql:host={$this->host};dbname={$this->db_name}",
+                    "mysql:host={$this->host};port={$this->port};dbname={$this->db_name}",
                     $this->username,
                     $this->password
                 );
+
             } else {
                 die(json_encode(["error" => "Koneksi gagal: " . $e->getMessage()]));
             }
@@ -50,21 +64,25 @@ class Database
 
         $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->createTableIfNotExists();
+
         return $this->conn;
     }
 
     private function createTableIfNotExists()
     {
         if ($this->type === 'pgsql') {
+
             $sql = "
             CREATE TABLE IF NOT EXISTS mahasiswa (
-                id SERIAL PRIMARY KEY,                  -- AUTO_INCREMENT versi PostgreSQL
+                id SERIAL PRIMARY KEY,
                 nama VARCHAR(100) NOT NULL,
                 jurusan VARCHAR(100) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             ";
+
         } else {
+
             $sql = "
             CREATE TABLE IF NOT EXISTS mahasiswa (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -73,6 +91,7 @@ class Database
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
             ";
+
         }
 
         $this->conn->exec($sql);
