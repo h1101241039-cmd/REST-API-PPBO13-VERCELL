@@ -1,16 +1,26 @@
 # Rest API
 Kelas PBO 2025, pertemuan ke-13 (7 Nov)
 
-## Clone repo
+## 1. Clone repo
 ```bash
 git clone https://github.com/leo42night/rest-api
 ```
+**Buat Repository di GitHub:** Tempat simpan proyek agar vercel dapat koneksi.
+```bash
+git remote add repoku https://github.com/<username>/<repo> 
+# buat sebuah perubahan di proyek agar bisa submit commit baru
+git add .
+git commit -m "persiapan sebelum deploy"
+git push repoku main --force
+```
 
-## Config
+## 2. Config
 1. Install PHP & Database
-2. Run Database & PHP Server `php -S localhost:3000` (port dapat disesuaikan)
+2. Run Database & PHP Server `php -S localhost:3001` (port dapat disesuaikan)
+3. Jalankan `db.sql`
 
-## Rute Di Akses
+## Rute API
+Ini adalah beberapa rute API yang tersedia:
 ```bash
 GET / → { "message": "Koneksi success" }
 GET /mahasiswa
@@ -20,12 +30,14 @@ PUT /mahasiswa/1 (body JSON)
 DELETE /mahasiswa/1
 ```
 
-## Test API (sesuaikan path)
+## 3. Test API (sesuaikan path)
+Path bisa di http local, atau link https deployment (vercel). ganti aja url nya.
 
 ### Menggunakan Terminal (pakai terminal yang basis Unix: Git Bash)
 
+- POST (create) data mahasiswa baru.
 ```bash
-curl -X POST http://localhost:3000/mahasiswa \
+curl -X POST http://localhost:3001/mahasiswa \
 -H "Authorization: Bearer 12345ABCDEF" \
 -H "Content-Type: application/json" \
 -d '{
@@ -33,26 +45,34 @@ curl -X POST http://localhost:3000/mahasiswa \
   "jurusan": "Teknik Informatika"
 }'
 ```
-respon Berhasil:
+Respon Berhasil:
 ```json
 {
   "message": "Data mahasiswa berhasil ditambahkan"
 }
 ```
-Lainnya:
+API Lainnya:
+
+- GET (ambil) Index halaman
 ```bash
-curl -X GET http://localhost:3000/
+curl -X GET http://localhost:3001/
 ```
+
+- GET (ambil) semua daya mahasiswas
 ```bash
-curl -X GET https://rest-api-ppbo-13-vercell.vercel.app/ \
+curl -X GET http://localhost:3001/mahasiswa \
 -H "Authorization: Bearer 12345ABCDEF"
 ```
+
+- GET (ambil) mahasiswa
 ```bash
-curl -X GET http://localhost:3000/mahasiswa/1 \
+curl -X GET http://localhost:3001/mahasiswa/1 \
 -H "Authorization: Bearer 12345ABCDEF"
 ```
+
+- PUT (update) mahasiswa data
 ```bash
-curl -X PUT http://localhost:3000/mahasiswa/1 \
+curl -X PUT http://localhost:3001/mahasiswa/1 \
 -H "Authorization: Bearer 12345ABCDEF" \
 -H "Content-Type: application/json" \
 -d '{
@@ -60,20 +80,23 @@ curl -X PUT http://localhost:3000/mahasiswa/1 \
   "jurusan": "Tata Boga"
 }'
 ```
+
+- DELETE (hapus) mahasiswa data
 ```bash
-curl -X DELETE http://localhost:3000/mahasiswa/1 \
+curl -X DELETE http://localhost:3001/mahasiswa/1 \
 -H "Authorization: Bearer 12345ABCDEF"
 ```
+
 ### Alternatif
 - Postman (Aplikasi)
 - Thunder Client (Ekstensi VSCode)
 - EchoAPI for VS Code (Ekstensi VSCode) **[🌟 Disarankan]**
 
-## Deployment
+## 4. Deployment
 
 ### Vercel
 Vercel bisa menjalankan PHP lewat custom runtime open-source bernama [vercel-php](https://github.com/vercel-community/php)
-1. **Tambahkan file konfigurasi Vecel:**
+### a. **Persiapkan file konfigurasi Vecel:**
 ```
 /api
   ├── index.php
@@ -99,16 +122,16 @@ require __DIR__ . "/../index.php";
   ]
 }
 ```
-2. Install Vercel CLI  
+### b. Install Vercel CLI  
 Anda perlu [install NPM](https://www.google.com/search?q=install+node+package+manager+di+windows) (Node Package Manager) lebih dulu
 ```bash
 npm install -g vercel
 ```
-3. Login ke akunmu (pakai Github)
+### c. Login ke akunmu (pakai Github)
 ```bash
 vercel login
 ```
-4. Deploy proyek
+### d. Deploy proyek
 ```bash
 vercel
 ```
@@ -122,55 +145,103 @@ Akan ada konfigurasi (tekan saja enter):
 ? Want to modify these settings? no
 ```
 
-5. Vercel akan otomatis mendeteksi file **vercel.json** dan menggunakan runtime @vercel/php.
-Setelah selesai, kamu akan dapat URL publik seperti:
-```
+Vercel akan otomatis mendeteksi file **vercel.json** dan menggunakan runtime @vercel/php.
+Setelah selesai, kamu akan dapat URL publik `Domains` singkat seperti (lihat pada halaman proyek vercel):
+```bash
 https://rest-api.vercel.app
 ```
 
-6. **Database Postgres**
+### e. **Database Postgres**
 
 Di halaman proyek vercel kalian, buka stores (contoh: **vercel.com/_nama-teams_/_nama-proyek_/stores**)
 - [Create Database]
+  - Pilih Provider: `Supabase (Postgres backend)`
   - Region: `Singapore`
-  - Public Env Variabel Prefix: `PG_`
+  - Public Env Variabel Prefix: `PG_` (bebas kasih prefix, ini biar rapi aja)
   - Instalation Plans: Free
 - [Continue]
-  - Database Name: `supabase-rest-api`
-- [Create]
-- Salin environment variabel ke `.env.local`
-- [Open In Supabase]
-- [New table]
-  - name: mahasiswa (id, nama [varchar], jurusan [varchar], created_at [timestamps now()])
+  - Database Name: `supabase-rest-api` (bebas kasih nama)
+- [Create] (akan memakan waktu load)
+- Selagi menunggu, buat file `.env.local` di folder proyek.
+- di web ketika selesai create, akan ada popup untuk koneksi ke supabase, langsung click [Connect] agar masuk ke config supabase.
+- Salin isi `.env.local` yang ada di config supabase ke `env.local` di folder proyek.
+- di halaman cnfig supabase, klik [Open In Supabase].
+- [Table Editor] -> [New table]
+  - **Name**: **"mahasiswa"** (nama tabel)
+  - Isi Kolom: 
+    - **"id"** (type [int], primary [check])
+    - **"created_at"** (type [timestamps], default [now()])
+    - **"jurusan"** (type [varchar])
 
-konfigurasi seperti ini (pakai `POSTGRES_URL_NON_POOLING`):
+- lihat kembali `env.local`, terdapat variabel dengan struktur `POSTGRES_URL_NON_POOLING`:`postgres://<username>:<password>@<host>:<port>/<database>?<options>`.
+
+- **(dalam proyek vercel) Buka Settings > Environment Variables** (url nya seperti ini **vercel.com/_nama-teams_/_nama-proyek_/settings/environment-variables**): Set variabel database berikut, sesuaikan dengan isi variabel `...URL_NON_POOLING` sebelumnya.  
 ```bash
-DB_TYPE: pgsql
-DB_HOST: aws-1-ap-southeast-1.pooler.supabase.com
-DB_PORT: 5432 # pakai port NON_POOLING
-DB_USER: postgres.itzxopxshpvcjotxxxxx
-DB_PASS: ETnWsKT1Q9xxxxx
-DB_SSLMODE: require
+DB_TYPE=pgsql
+DB_HOST=aws-1-ap-southeast-1.pooler.supabase.com
+DB_PORT=5432 # pakai port NON_POOLING
+DB_NAME=postgres
+DB_USER=postgres.itzxopxshpvcjotxxxxx
+DB_PASS=ETnWsKT1Q9xxxxx
+DB_SSLMODE=require
 ```
-**(dalam proyek vercel) Buka Settings > Environment Variables:** Tambahkan ke environment variabel proyek (letak di **vercel.com/_nama-teams_/_nama-proyek_/settings/environment-variables**) 
 
-- (opsional) Akses di HeidiSQL:
+- Jika sudah selesai setup variabel DB di vercel, sekarang coba deploy ulang (tombolnya akan muncul setelah ada perubahan variabel).
+
+- (opsional) anda dapat akses database Supabase (PostgreSQL) pakai HeidiSQL, ikuti config sebelumya, dan pakai config ini:
   - Network Type: **PostgreSQL (TCP/IP)**
   - Library: **libpq-12.dll**
 
-7. Test Deployment
-```
-curl -X GET https://<url-deployment>.vercel.app/
+## 5. Test API link Deployment
 
-curl -X GET http://<url-deployment>.vercel.app/mahasiswa \
+- POST (create) data mahasiswa baru.
+```bash
+curl -X POST https://<url-domain>.vercel.app/mahasiswa \
+-H "Authorization: Bearer 12345ABCDEF" \
+-H "Content-Type: application/json" \
+-d '{
+  "nama": "Andi Saputra",
+  "jurusan": "Teknik Informatika"
+}'
+```
+Respon Berhasil:
+```json
+{
+  "message": "Data mahasiswa berhasil ditambahkan"
+}
+```
+API Lainnya:
+
+- GET (ambil) Index halaman
+```bash
+curl -X GET https://<url-domain>.vercel.app/
+```
+
+- GET (ambil) semua daya mahasiswas
+```bash
+curl -X GET https://<url-domain>.vercel.app/mahasiswa \
 -H "Authorization: Bearer 12345ABCDEF"
 ```
 
-## Push Repo
-**Buat Repository di GitHub:** Tempat simpan proyek
+- GET (ambil) mahasiswa
 ```bash
-git add remote repoku https://github.com/<username>/<repo>
-git add .
-git commit -m "persiapan sebelum deploy"
-gut push repoku main --force
+curl -X GET https://<url-domain>.vercel.app/mahasiswa/1 \
+-H "Authorization: Bearer 12345ABCDEF"
+```
+
+- PUT (update) mahasiswa data
+```bash
+curl -X PUT https://<url-domain>.vercel.app/mahasiswa/1 \
+-H "Authorization: Bearer 12345ABCDEF" \
+-H "Content-Type: application/json" \
+-d '{
+  "nama": "Ahmad Syahroni",
+  "jurusan": "Tata Boga"
+}'
+```
+
+- DELETE (hapus) mahasiswa data
+```bash
+curl -X DELETE https://<url-domain>.vercel.app/mahasiswa/1 \
+-H "Authorization: Bearer 12345ABCDEF"
 ```
