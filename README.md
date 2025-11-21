@@ -196,7 +196,7 @@ DB_SSLMODE=require
 
 - POST (create) data mahasiswa baru.
 ```bash
-curl -X POST http://<url-domain>.vercel.app/mahasiswa \
+curl -X POST https://<url-domain>.vercel.app/mahasiswa \
 -H "Authorization: Bearer 12345ABCDEF" \
 -H "Content-Type: application/json" \
 -d '{
@@ -214,24 +214,24 @@ API Lainnya:
 
 - GET (ambil) Index halaman
 ```bash
-curl -X GET http://<url-domain>.vercel.app/
+curl -X GET https://<url-domain>.vercel.app/
 ```
 
 - GET (ambil) semua daya mahasiswas
 ```bash
-curl -X GET http://<url-domain>.vercel.app/mahasiswa \
+curl -X GET https://<url-domain>.vercel.app/mahasiswa \
 -H "Authorization: Bearer 12345ABCDEF"
 ```
 
 - GET (ambil) mahasiswa
 ```bash
-curl -X GET http://<url-domain>.vercel.app/mahasiswa/1 \
+curl -X GET https://<url-domain>.vercel.app/mahasiswa/1 \
 -H "Authorization: Bearer 12345ABCDEF"
 ```
 
 - PUT (update) mahasiswa data
 ```bash
-curl -X PUT http://<url-domain>.vercel.app/mahasiswa/1 \
+curl -X PUT https://<url-domain>.vercel.app/mahasiswa/1 \
 -H "Authorization: Bearer 12345ABCDEF" \
 -H "Content-Type: application/json" \
 -d '{
@@ -242,6 +242,6 @@ curl -X PUT http://<url-domain>.vercel.app/mahasiswa/1 \
 
 - DELETE (hapus) mahasiswa data
 ```bash
-curl -X DELETE http://<url-domain>.vercel.app/mahasiswa/1 \
+curl -X DELETE https://<url-domain>.vercel.app/mahasiswa/1 \
 -H "Authorization: Bearer 12345ABCDEF"
 ```
