@@ -44,7 +44,7 @@ Lainnya:
 curl -X GET http://localhost:3000/
 ```
 ```bash
-curl -X GET http://localhost:3000/mahasiswa \
+curl -X GET https://rest-api-ppbo-13-vercell.vercel.app/ \
 -H "Authorization: Bearer 12345ABCDEF"
 ```
 ```bash
