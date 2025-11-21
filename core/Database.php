@@ -18,7 +18,7 @@ class Database
         $this->db_name  = $_ENV['DB_NAME']     ?? 'postgres';
         $this->username = $_ENV['DB_USER']     ?? 'postgres';
         $this->password = $_ENV['DB_PASS']     ?? '';
-        $this->sslmode  = 'require'; // Supabase WAJIB SSL
+        $this->sslmode  = $_ENV['DB_PASS']     ??'require'; // Supabase WAJIB SSL
     }
 
     public function connect()
