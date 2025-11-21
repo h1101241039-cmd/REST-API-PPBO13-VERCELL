@@ -8,23 +8,22 @@ class Database
     private $username;
     private $password;
     private $sslmode;
-
     public $conn;
 
     public function __construct() {
-        $this->type     = $_ENV['DB_TYPE']     ?? 'pgsql';
-        $this->host     = $_ENV['DB_HOST']     ?? 'localhost';
-        $this->port     = $_ENV['DB_PORT']     ?? '5432';
-        $this->db_name  = $_ENV['DB_NAME']     ?? 'postgres';
-        $this->username = $_ENV['DB_USER']     ?? 'postgres';
-        $this->password = $_ENV['DB_PASS']     ?? '';
-        $this->sslmode  = $_ENV['DB_PASS']     ??'require'; // Supabase WAJIB SSL
+        $this->type     = getenv('DB_TYPE')     ?: 'pgsql';
+        $this->host     = getenv('DB_HOST')     ?: getenv('PGHOST') ?: 'localhost';
+        $this->port     = getenv('DB_PORT')     ?: getenv('PGPORT') ?: '5432';
+        $this->db_name  = getenv('DB_NAME')     ?: getenv('PGDATABASE') ?: 'postgres';
+        $this->username = getenv('DB_USER')     ?: getenv('PGUSER') ?: 'postgres';
+        $this->password = getenv('DB_PASS')     ?: getenv('PGPASSWORD') ?: 'mamakdie-00';
+        $this->sslmode  = getenv('DB_SSLMODE')  ?: 'require';
     }
 
     public function connect()
     {
         try {
-            $dsn = "pgsql:host={$this->host};port={$this->port};dbname={$this->db_name};sslmode=require";
+            $dsn = "pgsql:host={$this->host};port={$this->port};dbname={$this->db_name};sslmode={$this->sslmode}";
 
             $this->conn = new PDO($dsn, $this->username, $this->password);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
